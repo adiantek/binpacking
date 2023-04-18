@@ -79,7 +79,7 @@
         return count;
     };
 
-    const drawRectangles = function (bin, rectangles) {
+    const drawRectangles = function (prefix, bin, rectangles) {
         let count = 0;
         let area = 0;
         for (let i = 0; i < rectangles.length; i++) {
@@ -91,7 +91,7 @@
             count++;
             area += rect.w * rect.h;
         }
-        bin.customDiv.innerText = `Rectangles: ${count}, Area: ${area}`;
+        bin.customDiv.innerText = `${prefix} Rectangles: ${count}, Area: ${area}`;
         return count;
     };
 
@@ -226,7 +226,7 @@
         return rectangles;
     }
 
-    const ffdh = function (bin, rectangles) {
+    const ffdh = function (bin, rectangles, twophase) {
         // First Fit Decreasing Height
         rectangles.sort((a, b) => {
             if (b.h === a.h) {
@@ -234,6 +234,12 @@
             }
             return b.h - a.h;
         });
+        // for (let i = 0; i < rectangles.length; i++) {
+        //     const rect = rectangles[i];
+        //     if (rect.w < rect.h) {
+        //         [rect.w, rect.h] = [rect.h, rect.w];
+        //     }
+        // }
         const grid = [];
         for (let i = 0; i < bin.height; i++) {
             grid[i] = [];
@@ -281,37 +287,39 @@
                 break;
             }
             currY += maxH;
-            // phase 2
-            currX = bin.width;
-            for (let i = 0; i < rectangles.length; i++) {
-                let rect = rectangles[i];
-                if (rect.x !== -1) {
-                    continue;
-                }
-                if (currY - rect.h < 0) {
-                    continue;
-                }
-                if (currX - rect.w < 0) {
-                    continue;
-                }
-                let canPlace = true;
-                for (let k = 0; k < rect.h; k++) {
-                    for (let l = 0; l < rect.w; l++) {
-                        if (grid[currY - rect.h + k][currX - rect.w + l] !== 0) {
-                            canPlace = false;
-                            break;
-                        }
+            if (twophase) {
+                // phase 2
+                currX = bin.width;
+                for (let i = 0; i < rectangles.length; i++) {
+                    let rect = rectangles[i];
+                    if (rect.x !== -1) {
+                        continue;
                     }
-                }
-                if (canPlace) {
-                    rect.x = currX - rect.w;
-                    rect.y = currY - rect.h;
+                    if (currY - rect.h < 0) {
+                        continue;
+                    }
+                    if (currX - rect.w < 0) {
+                        continue;
+                    }
+                    let canPlace = true;
                     for (let k = 0; k < rect.h; k++) {
                         for (let l = 0; l < rect.w; l++) {
-                            grid[currY - rect.h + k][currX - rect.w + l] = 1;
+                            if (grid[currY - rect.h + k][currX - rect.w + l] !== 0) {
+                                canPlace = false;
+                                break;
+                            }
                         }
                     }
-                    currX -= rect.w;
+                    if (canPlace) {
+                        rect.x = currX - rect.w;
+                        rect.y = currY - rect.h;
+                        for (let k = 0; k < rect.h; k++) {
+                            for (let l = 0; l < rect.w; l++) {
+                                grid[currY - rect.h + k][currX - rect.w + l] = 1;
+                            }
+                        }
+                        currX -= rect.w;
+                    }
                 }
             }
         }
@@ -319,41 +327,53 @@
     };
 
     {
-        let numbers = [];
-        for (let i = 0; i < 2; i++) {
-            numbers.push(30);
-        }
+        let numbers = [20, 20];
+        // numbers.push(30);
+        // for (let i = 0; i < 2; i++) {
+            // numbers.push(30);
+        // }
         numbers[2] = numbers[0];
-        numbers[3] = numbers[1];
+        numbers[3] = numbers[1];// + 10;
         numbers[4] = numbers[0] + 1;
-        numbers[5] = numbers[1];
-        
+        numbers[5] = numbers[1];// + 10;
+
+        numbers[6] = numbers[2];
+        numbers[7] = numbers[3];
+        numbers[8] = numbers[4];
+        numbers[9] = numbers[5];
+         
         loadBins(numbers);
 
         // let bestDiff = 0;
         // let bestRectangles = undefined;
 
-        // for (let i = 0; i < 1; i++) {
+        // for (let i = 0; i < 1000 || bestRectangles == null; i++) {
         //     const rectangles = randomRectangles(bins[0]);
         //     const clone = JSON.parse(JSON.stringify(rectangles));
-        //     ffdh(bins[1], rectangles);
-        //     let b = countRectangles(bins[1], rectangles);
+        //     ffdh(bins[3], rectangles, true);
+        //     let b = countRectangles(bins[3], rectangles);
 
-        //     ffdh(bins[2], rectangles);
-        //     let c = countRectangles(bins[2], rectangles);
+        //     ffdh(bins[4], rectangles, true);
+        //     let c = countRectangles(bins[4], rectangles);
         //     let diff = b - c;
-        //     if (diff > bestDiff) {
+        //     if (diff > bestDiff || bestRectangles == null) {
+        //         console.log(b, ", ", c);
         //         bestDiff = diff;
         //         bestRectangles = clone;
         //     }
         // }
         {
             const rectangles = randomRectangles(bins[0]);
-            drawRectangles(bins[0], rectangles);
-            ffdh(bins[1], rectangles);
-            drawRectangles(bins[1], rectangles);
-            ffdh(bins[2], rectangles);
-            drawRectangles(bins[2], rectangles);
+            drawRectangles("Random rectangles", bins[0], rectangles);
+            ffdh(bins[1], rectangles, false);
+            drawRectangles("FFDH", bins[1], rectangles);
+            ffdh(bins[2], rectangles, false);
+            drawRectangles("FFDH", bins[2], rectangles);
+            ffdh(bins[3], rectangles, true);
+            drawRectangles("FFDH+FC", bins[3], rectangles);
+            ffdh(bins[4], rectangles, true);
+            drawRectangles("FFDH+FC", bins[4], rectangles);
+            
         }
     }
 })();
