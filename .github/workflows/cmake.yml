@@ -1,0 +1,28 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        architecture: [x64, arm64]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure CMake
+      if: matrix.os == 'ubuntu-latest' && matrix.os == 'macos-latest'
+      run: ./configure_cmake.sh ${{ matrix.os }} ${{ matrix.architecture }} -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
