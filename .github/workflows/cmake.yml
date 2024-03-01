@@ -20,9 +20,23 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install arm64 toolchain
+      if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'arm64'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
     - name: Configure CMake
-      if: matrix.os == 'ubuntu-latest' && matrix.os == 'macos-latest'
-      run: ./configure_cmake.sh ${{ matrix.os }} ${{ matrix.architecture }} -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
+      shell: bash
+      run: |
+        mkdir build
+        chmod +x ./configure_cmake.sh
+        ./configure_cmake.sh ${{ matrix.os }} ${{ matrix.architecture }} -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S .
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+      run: cmake --build build --config Release
+    
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}-${{ matrix.architecture }}
+        path: build

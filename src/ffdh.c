@@ -3,7 +3,7 @@
 
 void ffdh_f(Bin *bin, FRect *rect, size_t n) {
   // first fit decreasing height
-  mergesort(rect, n, sizeof(FRect), FRect_cmp_by_h);
+  merge_sort(rect, n, sizeof(FRect), FRect_cmp_by_h);
 
   float curr_y = 0;
   while (true) {
@@ -40,7 +40,7 @@ void ffdh_f(Bin *bin, FRect *rect, size_t n) {
 }
 
 void ffdh_i(Bin *bin, IRect *rect, size_t n) {
-  mergesort(rect, n, sizeof(IRect), IRect_cmp_by_h);
+  merge_sort(rect, n, sizeof(IRect), IRect_cmp_by_h);
 
   int32_t curr_y = 0;
   while (true) {

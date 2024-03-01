@@ -41,7 +41,7 @@ void merge(char *base_, size_t nmemb, size_t size,
 }
 
 #define _min(a, b) ((a) < (b) ? (a) : (b))
-void mergesort(void *base, size_t nmemb, size_t size,
+void merge_sort(void *base, size_t nmemb, size_t size,
                int (*cmp)(const void *, const void *)) {
   char *base_ = (char *)base;
   for (size_t curr_size = 1; curr_size <= nmemb - 1; curr_size *= 2) {
