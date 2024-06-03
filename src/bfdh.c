@@ -23,7 +23,7 @@ void bfdh_f(Bin *bin, FRect *rect, size_t n) {
   FShelf *shelf = malloc(shelf_capacity * sizeof(FShelf));
 
   for (size_t i = n; i-- > 0;) {
-    if (rect[i].bin_id) {
+    if (rect[i].bin_id || rect[i].w > bin->w || rect[i].h > bin->h) {
       continue;
     }
     float min_waste = -1;
@@ -72,7 +72,7 @@ void bfdh_i(Bin *bin, IRect *rect, size_t n) {
   IShelf *shelf = malloc(shelf_capacity * sizeof(IShelf));
 
   for (size_t i = n; i-- > 0;) {
-    if (rect[i].bin_id) {
+    if (rect[i].bin_id || rect[i].w > bin->w || rect[i].h > bin->h) {
       continue;
     }
     int32_t min_waste = -1;
@@ -109,4 +109,6 @@ void bfdh_i(Bin *bin, IRect *rect, size_t n) {
     rect[i].bin_id = bin->id;
     shelf[best_shelf].x += rect[i].w;
   }
+
+  free(shelf);
 }

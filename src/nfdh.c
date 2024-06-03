@@ -9,7 +9,7 @@ void nfdh_f(Bin *bin, FRect *rect, size_t n) {
   float max_h = -1;
   float curr_x = 0;
   for (size_t i = n; i-- > 0;) {
-    if (rect[i].bin_id) {
+    if (rect[i].bin_id || rect[i].w > bin->w) {
       continue;
     }
     if (curr_y + rect[i].h > bin->h) {
@@ -41,7 +41,7 @@ void nfdh_i(Bin *bin, IRect *rect, size_t n) {
   int32_t max_h = -1;
   int32_t curr_x = 0;
   for (size_t i = n; i-- > 0;) {
-    if (rect[i].bin_id) {
+    if (rect[i].bin_id || rect[i].w > bin->w) {
       continue;
     }
     if (curr_y + rect[i].h > bin->h) {
