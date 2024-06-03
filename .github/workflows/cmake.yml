@@ -20,11 +20,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install arm64 toolchain
+    - name: Install arm64 toolchain and qemu
       if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'arm64'
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu qemu-user
+
+    - name: Install valgrind
+      if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y valgrind
 
     - name: Configure CMake
       shell: bash
@@ -36,6 +42,25 @@ jobs:
     - name: Build
       run: cmake --build build --config Release
     
+    - name: Test with valgrind
+      if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
+      run: |
+        valgrind ./build/binpacking bfdh float 200
+        valgrind ./build/binpacking ffdh float 200
+        valgrind ./build/binpacking nfdh float 200
+        valgrind ./build/binpacking wfdh float 200
+        valgrind ./build/binpacking bfdh int 200
+        valgrind ./build/binpacking ffdh int 200
+        valgrind ./build/binpacking nfdh int 200
+        valgrind ./build/binpacking wfdh int 200
+      
+    - name: Test on all platforms
+      if: matrix.os != 'windows-latest' || matrix.architecture != 'arm64'
+      shell: bash
+      run: |
+        chmod +x ./run_tests.sh
+        ./run_tests.sh ${{ matrix.os }} ${{ matrix.architecture }}
+
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-${{ matrix.architecture }}

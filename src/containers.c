@@ -123,6 +123,42 @@ int FRect_cmp_by_h(const void *a, const void *b) {
   return 0;
 }
 
+bool FRect_overlap(FRect *a, FRect *b) {
+  if (a->bin_id != b->bin_id || a->bin_id == 0) {
+    return false;
+  }
+  return a->x < b->x + b->w && a->x + a->w > b->x && a->y < b->y + b->h &&
+         a->y + a->h > b->y;
+}
+
+bool IRect_overlap(IRect *a, IRect *b) {
+  if (a->bin_id != b->bin_id || a->bin_id == 0) {
+    return false;
+  }
+  return a->x < b->x + b->w && a->x + a->w > b->x && a->y < b->y + b->h &&
+         a->y + a->h > b->y;
+}
+
+size_t IRect_packed(IRect *rect, size_t n) {
+  size_t packed = 0;
+  for (size_t i = 0; i < n; i++) {
+    if (rect[i].bin_id) {
+      packed++;
+    }
+  }
+  return packed;
+}
+
+size_t FRect_packed(FRect *rect, size_t n) {
+  size_t packed = 0;
+  for (size_t i = 0; i < n; i++) {
+    if (rect[i].bin_id) {
+      packed++;
+    }
+  }
+  return packed;
+}
+
 void IRect_json(IRect *rect, size_t n, FILE *fp) {
   fprintf(fp, "[\n");
   for (size_t i = 0; i < n; i++) {

@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifndef RUST_API
 #include <stdio.h>
@@ -47,6 +48,12 @@ void FRect_clear(FRect *rect, size_t n);
 
 int IRect_cmp_by_h(const void *a, const void *b);
 int FRect_cmp_by_h(const void *a, const void *b);
+
+bool FRect_overlap(FRect *a, FRect *b);
+bool IRect_overlap(IRect *a, IRect *b);
+
+size_t IRect_packed(IRect *rect, size_t n);
+size_t FRect_packed(FRect *rect, size_t n);
 
 #ifndef RUST_API
 void IRect_json(IRect *rect, size_t n, FILE *fp);
